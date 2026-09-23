@@ -1,21 +1,8 @@
-/**
- * ==============================================================================
- * CONTROLADOR PRINCIPAL DE LA APLICACIÓN (app.js)
- * Asignatura: Arquitectura de Software
- * Unidad 3: Estrategias de Navegación en la Arquitectura de Software
- * 
- * Estilo visual: Nudo de Oro (nudos-de-oro.vercel.app)
- * Iconografía: Lucide Icons (Sin emojis)
- * ==============================================================================
- */
-
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Instanciación del Patrón Strategy (GoF)
   const estrategiaCorta = new EstrategiaRutaMasCorta();
   const estrategiaRapida = new EstrategiaRutaMasRapida();
   const calculador = new CalculadorRutas(GrafoJoyeria, estrategiaCorta);
 
-  // 2. Elementos del DOM
   const selectOrigen = document.getElementById("select-origen");
   const selectDestino = document.getElementById("select-destino");
   const radioCorta = document.getElementById("strat-corta");
@@ -26,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const listPasos = document.getElementById("route-steps-list");
 
-  // Elementos del Modal de Comparativa de Estrategias GoF
   const modalComparativa = document.getElementById("modal-comparativa-estrategias");
   const comparativaTitulo = document.getElementById("comparativa-titulo");
   const comparativaTrayectoSub = document.getElementById("comparativa-trayecto-sub");
@@ -34,20 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const comparativaBtnCerrarX = document.getElementById("comparativa-btn-cerrar-x");
   const comparativaBtnCerrar = document.getElementById("comparativa-btn-cerrar");
 
-  // Elementos del Banner Flotante en Mapa
   const bannerComparativa = document.getElementById("map-comparison-banner");
   const resumenComparativa = document.getElementById("map-comparison-resumen");
   const btnReabrirComparativa = document.getElementById("btn-reabrir-comparativa");
   const btnCerrarBannerComparativa = document.getElementById("btn-cerrar-banner-comparativa");
 
-  // 3. Inicializar Lucide Icons
   function refrescarIconos() {
     if (typeof lucide !== "undefined") {
       lucide.createIcons();
     }
   }
 
-  // 4. Configurar Theme Toggle (Claro / Oscuro) inspirado en nudos-de-oro.vercel.app
   function inicializarTema() {
     const root = document.documentElement;
     const preferedTheme = localStorage.getItem("nudo-de-oro-theme") || 
@@ -78,10 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnInvertir = document.getElementById("btn-invertir");
 
-  // 5. Inicializar Mapa Leaflet
   ModuloMapa.inicializar("map", GrafoJoyeria);
 
-  // 6. Funciones de Poblado Dinámico con Exclusión Mutua por Ciudad
   function obtenerNodosCiudad() {
     return Object.values(GrafoJoyeria.nodos);
   }
@@ -94,10 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return opt;
   }
 
-  /**
-   * Actualiza la lista desplegable de Destino con los nodos de la ciudad activa,
-   * excluyendo el nodo seleccionado en Origen.
-   */
   function actualizarOpcionesDestino(origenExcluido) {
     const valorPrevio = selectDestino.value;
     selectDestino.innerHTML = "";
@@ -115,10 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /**
-   * Actualiza la lista desplegable de Origen con los nodos de la ciudad activa,
-   * excluyendo el nodo seleccionado en Destino.
-   */
   function actualizarOpcionesOrigen(destinoExcluido) {
     const valorPrevio = selectOrigen.value;
     selectOrigen.innerHTML = "";
@@ -154,16 +127,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const origenInicial = origenCustom || def.origen;
     const destinoInicial = destinoCustom || def.destino;
 
-    // 1. Poblar origen con los nodos de la ciudad activa excluyendo el destino inicial
     actualizarOpcionesOrigen(destinoInicial);
     selectOrigen.value = origenInicial;
 
-    // 2. Poblar destino con los nodos de la ciudad activa excluyendo el origen inicial
     actualizarOpcionesDestino(origenInicial);
     selectDestino.value = destinoInicial;
   }
 
-  // Escuchar cambio de ciudad en la barra superior
   cityButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       const cityId = btn.getAttribute("data-city-id");
@@ -188,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarSelectores();
   inicializarTema();
 
-  // Gestor del Modal Corporativo Nudo de Oro (Cero alertas nativas)
   const modalElement = document.getElementById("modal-notificacion");
   const modalTitulo = document.getElementById("modal-titulo");
   const modalMensaje = document.getElementById("modal-mensaje");
@@ -238,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 7. Sincronizar Estrategia en el Contexto GoF
   function sincronizarEstrategiaContexto() {
     if (radioRapida.checked) {
       calculador.setEstrategia(estrategiaRapida);
@@ -247,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 8. Ejecución y Renderizado de Navegación
   function ejecutarNavegacion() {
     const origenId = selectOrigen.value;
     const destinoId = selectDestino.value;
@@ -272,27 +239,19 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Inyección de la estrategia seleccionada (Patrón Strategy)
     sincronizarEstrategiaContexto();
 
-    // Cálculo y medición precisa con performance.now()
     const resultado = calculador.ejecutarCalculo(origenId, destinoId);
     ultimoResultadoRuta = resultado;
 
-    // Ocultar banner de comparativa si estaba activo
     if (bannerComparativa) bannerComparativa.style.display = "none";
 
-    // Renderizar itinerario y trazar ruta en el mapa
     renderizarItinerario(resultado);
     ModuloMapa.trazarRuta(resultado);
 
     refrescarIconos();
   }
 
-
-  // ============================================================================
-  // GESTOR DEL INFORME TÉCNICO Y JUSTIFICACIÓN DE RUTA (MODAL AL CLIC EN RUTA)
-  // ============================================================================
   let ultimoResultadoRuta = null;
 
   const modalInforme = document.getElementById("modal-informe-ruta");
@@ -322,13 +281,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const ciudadActual = GrafoJoyeria.getCiudadActiva().nombre;
     const esCorta = res.estrategia.includes("Corta");
 
-    // 1. Encabezado y Métricas
     informeTrayectoSub.innerHTML = `<strong>${res.origenNombre}</strong> &rarr; <strong>${res.destinoNombre}</strong> &bull; <span style="color: ${esCorta ? 'var(--color-primary)' : '#2563eb'}">${res.estrategia}</span> (${ciudadActual})`;
     informeMetricDistancia.textContent = `${res.distanciaTotalKm} km`;
     informeMetricTiempo.textContent = `${res.tiempoTotalMinutos} min`;
     informeMetricLatencia.textContent = `${res.tiempoProcesamientoMs} ms`;
 
-    // 2. Justificación Algorítmica y Operativa ("Por qué esta ruta y no otra")
     if (esCorta) {
       informeJustificacionTexto.innerHTML = `
         <p style="margin-bottom: 0.5rem;">
@@ -355,7 +312,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
-    // 3. Vías, Cruces y Elementos Urbanos Tramo a Tramo
     informeViasContainer.innerHTML = "";
     for (let i = 0; i < res.rutaIds.length - 1; i++) {
       const u = res.rutaIds[i];
@@ -387,7 +343,6 @@ document.addEventListener("DOMContentLoaded", () => {
       informeViasContainer.appendChild(tramoDiv);
     }
 
-    // 4. Secuencia Ordenada de Sedes en el Itinerario
     informeItinerarioList.innerHTML = "";
     res.rutaIds.forEach((nodoId, idx) => {
       const nodo = GrafoJoyeria.nodos[nodoId];
@@ -437,12 +392,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Exponer a nivel global para que el mapa Leaflet pueda invocarlo en el evento click
   window.abrirModalInformeRuta = abrirModalInformeRuta;
 
-  /**
-   * Renderiza el itinerario paso a paso con iconos limpios
-   */
   function renderizarItinerario(resultado) {
     listPasos.innerHTML = "";
 
@@ -483,9 +434,6 @@ document.addEventListener("DOMContentLoaded", () => {
     refrescarIconos();
   }
 
-  // ============================================================================
-  // GESTOR DE LA COMPARATIVA REAL DE ESTRATEGIAS GoF (MODAL DE COMPARACIÓN)
-  // ============================================================================
   function abrirModalComparativa() {
     if (!modalComparativa) return;
     modalComparativa.classList.add("active");
@@ -513,9 +461,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  /**
-   * Comparativa Real entre Ruta Más Corta y Ruta Más Rápida (Patrón Strategy GoF)
-   */
   function compararEstrategias() {
     const origenId = selectOrigen.value;
     const destinoId = selectDestino.value;
@@ -540,21 +485,17 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // 1. Ejecutar Estrategia Ruta Más Corta (GoF)
     calculador.setEstrategia(estrategiaCorta);
     const resCorta = calculador.ejecutarCalculo(origenId, destinoId);
 
-    // 2. Ejecutar Estrategia Ruta Más Rápida (GoF)
     calculador.setEstrategia(estrategiaRapida);
     const resRapida = calculador.ejecutarCalculo(origenId, destinoId);
 
-    // Restaurar la estrategia en el contexto según la opción seleccionada por el usuario
     sincronizarEstrategiaContexto();
 
     const ciudadActual = GrafoJoyeria.getCiudadActiva().nombre;
     comparativaTrayectoSub.innerHTML = `<strong>${resCorta.origenNombre}</strong> &rarr; <strong>${resCorta.destinoNombre}</strong> &bull; Red Vial de ${ciudadActual}`;
 
-    // Helper para obtener nombres de vías y cruces de una ruta
     function obtenerViasRuta(rutaIds) {
       const nombresVias = [];
       for (let i = 0; i < rutaIds.length - 1; i++) {
@@ -566,13 +507,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return nombresVias.length > 0 ? nombresVias.join(" &bull; ") : "Corredores viales principales";
     }
 
-    // Comprobar si ambas estrategias produjeron la misma ruta física
     const sonIguales = resCorta.rutaIds.join("->") === resRapida.rutaIds.join("->");
 
-    // Trazar simultáneamente la comparativa en el mapa Leaflet
     ModuloMapa.trazarComparativa(resCorta, resRapida, abrirModalComparativa);
 
-    // Actualizar y mostrar el banner flotante en el mapa
     if (bannerComparativa && resumenComparativa) {
       if (sonIguales) {
         resumenComparativa.innerHTML = `Rutas Idénticas: Coinciden en <strong>${resCorta.distanciaTotalKm} km</strong> y <strong>${resCorta.tiempoTotalMinutos} min</strong>`;
@@ -583,7 +521,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (sonIguales) {
-      // CASO 1: Ambas estrategias son exactamente la misma ruta
       const viasComunes = obtenerViasRuta(resCorta.rutaIds);
       const nombresNodos = resCorta.rutaIds.map(id => GrafoJoyeria.nodos[id].nombre).join(" &rarr; ");
 
@@ -601,7 +538,6 @@ document.addEventListener("DOMContentLoaded", () => {
           </p>
         </div>
 
-        <!-- Ficha de la Ruta Óptima Unificada -->
         <div class="comparativa-card card-corta" style="margin-top: 0.2rem;">
           <div class="comparativa-card-header">
             <h4 class="comparativa-card-title">
@@ -648,7 +584,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
     } else {
-      // CASO 2: Rutas diferentes - Comparación Lado a Lado
       const viasCorta = obtenerViasRuta(resCorta.rutaIds);
       const viasRapida = obtenerViasRuta(resRapida.rutaIds);
       const nombresCorta = resCorta.rutaIds.map(id => GrafoJoyeria.nodos[id].nombre).join(" &rarr; ");
@@ -660,10 +595,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const pctDist = Math.max(1, Math.round((diffKm / resCorta.distanciaTotalKm) * 100));
 
       comparativaBodyContent.innerHTML = `
-        <!-- Cuadrícula Comparativa Lado a Lado -->
         <div class="comparativa-grid">
           
-          <!-- Tarjeta Estrategia Ruta Más Corta -->
           <div class="comparativa-card card-corta">
             <div class="comparativa-card-header">
               <h4 class="comparativa-card-title">
@@ -703,7 +636,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </button>
           </div>
 
-          <!-- Tarjeta Estrategia Ruta Más Rápida -->
           <div class="comparativa-card card-rapida">
             <div class="comparativa-card-header">
               <h4 class="comparativa-card-title">
@@ -745,7 +677,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         </div>
 
-        <!-- Tarjeta de Balance y Análisis de Trade-Off -->
         <div class="comparativa-balance-card">
           <div class="comparativa-balance-header">
             <i data-lucide="scale"></i>
@@ -777,15 +708,12 @@ document.addEventListener("DOMContentLoaded", () => {
     refrescarIconos();
   }
 
-  // Event listeners del Banner Flotante en Mapa
   btnReabrirComparativa?.addEventListener("click", abrirModalComparativa);
   btnCerrarBannerComparativa?.addEventListener("click", () => {
     if (bannerComparativa) bannerComparativa.style.display = "none";
     ejecutarNavegacion();
   });
 
-
-  // 9. Event Listeners
   btnCalcular.addEventListener("click", ejecutarNavegacion);
   btnComparar.addEventListener("click", compararEstrategias);
 
@@ -802,14 +730,12 @@ document.addEventListener("DOMContentLoaded", () => {
     ejecutarNavegacion();
   });
 
-  // Botón para invertir el sentido de despacho (Origen <-> Destino)
   btnInvertir?.addEventListener("click", () => {
     const origenActual = selectOrigen.value;
     const destinoActual = selectDestino.value;
 
     if (!origenActual || !destinoActual) return;
 
-    // Invertir actualizando las listas sin permitir colisión
     actualizarOpcionesOrigen(origenActual);
     selectOrigen.value = destinoActual;
 
@@ -819,8 +745,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ejecutarNavegacion();
   });
 
-
-  // 10. Ejecución inicial
   setTimeout(() => {
     ejecutarNavegacion();
     refrescarIconos();

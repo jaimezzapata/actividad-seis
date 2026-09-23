@@ -1,24 +1,7 @@
-/**
- * MÓDULO DE DATOS: GRAFO GEOESPACIAL MULTICIUDAD EN MEMORIA
- * Joyería Nudo de Oro - Red Logística Nacional
- * 
- * Cobertura en:
- * 1. BOGOTÁ D.C. (Red expandida con cobertura ampliada en múltiples zonas urbanas)
- * 2. MEDELLÍN (Valle de Aburrá y Oriente cercano)
- * 3. BUCARAMANGA (Área Metropolitana y Meseta)
- * 
- * Cada arista cuenta con doble ponderación:
- * - distanciaKm: Longitud física de la vía.
- * - tiempoMinutos: Duración estimada con tráfico vehicular y factores de seguridad.
- */
-
 const GrafoJoyeria = {
   ciudadActivaId: "BOGOTA",
 
   ciudades: {
-    // =========================================================================
-    // 1. CIUDAD: BOGOTÁ D.C. (Red Expandida con Cobertura Metropolitana)
-    // =========================================================================
     "BOGOTA": {
       id: "BOGOTA",
       nombre: "Bogotá D.C.",
@@ -219,9 +202,6 @@ const GrafoJoyeria = {
       ]
     },
 
-    // =========================================================================
-    // 2. CIUDAD: MEDELLÍN (Valle de Aburrá y Oriente)
-    // =========================================================================
     "MEDELLIN": {
       id: "MEDELLIN",
       nombre: "Medellín",
@@ -317,9 +297,6 @@ const GrafoJoyeria = {
       ]
     },
 
-    // =========================================================================
-    // 3. CIUDAD: BUCARAMANGA (Área Metropolitana y Meseta de Bucaramanga)
-    // =========================================================================
     "BUCARAMANGA": {
       id: "BUCARAMANGA",
       nombre: "Bucaramanga",
@@ -416,10 +393,6 @@ const GrafoJoyeria = {
     }
   },
 
-  /**
-   * Cambia la ciudad activa
-   * @param {string} ciudadId 
-   */
   setCiudadActiva(ciudadId) {
     if (!this.ciudades[ciudadId]) {
       throw new Error(`La ciudad ${ciudadId} no existe en el sistema.`);
@@ -428,14 +401,10 @@ const GrafoJoyeria = {
     return this.ciudades[ciudadId];
   },
 
-  /**
-   * Obtiene la ciudad activa actual
-   */
   getCiudadActiva() {
     return this.ciudades[this.ciudadActivaId];
   },
 
-  // Getters compatibles con el código existente
   get nodos() {
     return this.ciudades[this.ciudadActivaId].nodos;
   },
@@ -444,10 +413,6 @@ const GrafoJoyeria = {
     return this.ciudades[this.ciudadActivaId].conexiones;
   },
 
-  /**
-   * Obtiene los vecinos directos de un nodo en la ciudad activa
-   * @param {string} nodoId 
-   */
   obtenerVecinos(nodoId) {
     const conexiones = this.conexiones;
     const vecinos = [];
@@ -469,11 +434,6 @@ const GrafoJoyeria = {
     return vecinos;
   },
 
-  /**
-   * Obtiene la arista entre dos nodos adyacentes en la ciudad activa
-   * @param {string} u 
-   * @param {string} v 
-   */
   obtenerArista(u, v) {
     const conexion = this.conexiones.find(
       c => (c.origen === u && c.destino === v) || (c.origen === v && c.destino === u)

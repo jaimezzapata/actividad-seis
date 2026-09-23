@@ -1,10 +1,3 @@
-/**
- * MÓDULO DE VISUALIZACIÓN GEOESPACIAL CON LEAFLET.JS
- * Joyería Nudo de Oro - Visualizador de Logística y Rutas
- * 
- * Marcadores 100% SVG vectorial (Sin emojis), red logística e interactividad.
- */
-
 const ModuloMapa = (function() {
   let mapInstance = null;
   let layerRedLogistica = null;
@@ -15,11 +8,7 @@ const ModuloMapa = (function() {
   const CENTRO_BOGOTA = [4.6520, -74.0650];
   const ZOOM_INICIAL = 12;
 
-  /**
-   * SVGs Vectoriales Limpios para los Marcadores (Sin emojis)
-   */
   const SVG_ICONS = {
-    // Icono Diamante / Joya para Sede y Taller
     taller: `
       <svg class="marker-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M6 3h12l4 6-10 12L2 9z"/>
@@ -27,7 +16,6 @@ const ModuloMapa = (function() {
         <path d="M2 9h20"/>
       </svg>
     `,
-    // Icono Edificio / Proveedor Mayorista
     proveedor: `
       <svg class="marker-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 21h18"/>
@@ -40,7 +28,6 @@ const ModuloMapa = (function() {
         <path d="M16 14v3"/>
       </svg>
     `,
-    // Icono Tienda / Sucursal Boutique
     sucursal: `
       <svg class="marker-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
@@ -49,7 +36,6 @@ const ModuloMapa = (function() {
         <path d="M2 7h20"/>
       </svg>
     `,
-    // Icono Cliente / Destino VIP
     cliente: `
       <svg class="marker-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -58,9 +44,6 @@ const ModuloMapa = (function() {
     `
   };
 
-  /**
-   * Genera el marcador Leaflet con pin estilizado y SVG vectorial
-   */
   function crearIconoPersonalizado(tipo) {
     const iconClass = `marker-${tipo}`;
     const svgContent = SVG_ICONS[tipo] || SVG_ICONS.cliente;
@@ -78,9 +61,6 @@ const ModuloMapa = (function() {
     });
   }
 
-  /**
-   * Inicializa el mapa Leaflet
-   */
   function inicializar(containerId, grafo) {
     if (mapInstance) {
       mapInstance.remove();
@@ -93,7 +73,6 @@ const ModuloMapa = (function() {
       attributionControl: true
     });
 
-    // Capa de OpenStreetMap 100% gratuita y libre
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> | Nudo de Oro Logística'
@@ -109,9 +88,6 @@ const ModuloMapa = (function() {
     return mapInstance;
   }
 
-  /**
-   * Dibuja todas las conexiones viales del grafo (puramente visual, sin tooltips invasivos)
-   */
   function dibujarRedLogistica(grafo) {
     layerRedLogistica.clearLayers();
 
@@ -137,10 +113,6 @@ const ModuloMapa = (function() {
     });
   }
 
-  /**
-   * Renderiza los marcadores interactivos con un tooltip sutil al pasar el cursor
-   * y un popup mínimo si se hace clic (sin textos pesados ni invasivos)
-   */
   function renderizarMarcadores(grafo) {
     layerMarcadores.clearLayers();
     marcadoresNodos = {};
@@ -149,7 +121,6 @@ const ModuloMapa = (function() {
       const icono = crearIconoPersonalizado(nodo.tipo);
       const marker = L.marker([nodo.lat, nodo.lng], { icon: icono });
 
-      // Tooltip muy sutil y compacto al pasar el cursor
       marker.bindTooltip(nodo.nombre, {
         direction: "top",
         offset: [0, -36],
@@ -157,7 +128,6 @@ const ModuloMapa = (function() {
         opacity: 0.95
       });
 
-      // Mini popup discreto solo si hace clic
       const popupHtml = `
         <div class="popup-compacto">
           <span class="popup-tipo-pill">${nodo.tipo.toUpperCase()}</span>
@@ -178,10 +148,6 @@ const ModuloMapa = (function() {
 
   let solicitudRutaActual = 0;
 
-  /**
-   * Traza la ruta óptima en el mapa recorriendo las calles y avenidas reales
-   * mediante el motor de enrutamiento OSRM de OpenStreetMap.
-   */
   async function trazarRuta(resultado) {
     layerRutaActiva.clearLayers();
 
@@ -195,10 +161,8 @@ const ModuloMapa = (function() {
 
     const idSolicitud = ++solicitudRutaActual;
 
-    // 1. Trazado visual preliminar con los waypoints de los nodos
     dibujarLineasRuta(coords, colorPrimario);
 
-    // 2. Consulta de la geometría vial detallada a OSRM (calles, curvas y sentidos reales)
     try {
       const waypoints = coords.map(([lat, lng]) => `${lng},${lat}`).join(";");
       const url = `https://router.project-osrm.org/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
@@ -208,11 +172,9 @@ const ModuloMapa = (function() {
 
       const data = await response.json();
 
-      // Si el usuario cambió de selección antes de terminar la petición, descartar respuesta vieja
       if (idSolicitud !== solicitudRutaActual) return;
 
       if (data.routes && data.routes.length > 0 && data.routes[0].geometry) {
-        // GeoJSON [lng, lat] -> Leaflet [lat, lng]
         const coordenadasVialesReales = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
 
         layerRutaActiva.clearLayers();
@@ -243,14 +205,12 @@ const ModuloMapa = (function() {
       className: "polyline-ruta-activa"
     });
 
-    // Tooltip informativo sobre la línea de ruta
     mainLine.bindTooltip("Haz clic para ver el informe técnico y justificación de la ruta", {
       sticky: true,
       direction: "top",
       className: "mini-tooltip-nodo"
     });
 
-    // Al hacer clic sobre la ruta en el mapa se abre el modal técnico
     mainLine.on("click", (e) => {
       L.DomEvent.stopPropagation(e);
       if (typeof window.abrirModalInformeRuta === "function") {
@@ -269,10 +229,6 @@ const ModuloMapa = (function() {
     });
   }
 
-  /**
-   * Traza simultáneamente ambas rutas en el mapa para una comparativa visual directa.
-   * Si ambas rutas son idénticas, traza una ruta unificada con estilo especial.
-   */
   async function trazarComparativa(resCorta, resRapida, onAbrirComparativa) {
     layerRutaActiva.clearLayers();
 
@@ -282,7 +238,6 @@ const ModuloMapa = (function() {
     const idSolicitud = ++solicitudRutaActual;
 
     if (sonIguales) {
-      // Rutas idénticas: trazar una sola línea dorada con tooltip explícito
       const puntos = resCorta.coordenadasRuta;
       const glowLine = L.polyline(puntos, {
         color: "#9e7a27",
@@ -337,13 +292,10 @@ const ModuloMapa = (function() {
           }
         }
       } catch (e) {
-        // Fallback
       }
       return;
     }
 
-    // Rutas diferentes: trazar AMBAS rutas simultáneamente en el mapa
-    // 1. Ruta Más Corta (Dorado sólido)
     const puntosCorta = resCorta.coordenadasRuta;
     const glowCorta = L.polyline(puntosCorta, {
       color: "#9e7a27",
@@ -371,7 +323,6 @@ const ModuloMapa = (function() {
       if (typeof onAbrirComparativa === "function") onAbrirComparativa();
     });
 
-    // 2. Ruta Más Rápida (Azul con guiones [10, 8])
     const puntosRapida = resRapida.coordenadasRuta;
     const glowRapida = L.polyline(puntosRapida, {
       color: "#2563eb",
@@ -405,7 +356,6 @@ const ModuloMapa = (function() {
     layerRutaActiva.addLayer(glowRapida);
     layerRutaActiva.addLayer(lineRapida);
 
-    // Ajustar vista para abarcar ambas rutas
     const groupBounds = L.featureGroup([lineCorta, lineRapida]).getBounds();
     mapInstance.fitBounds(groupBounds, {
       padding: [70, 70],
@@ -443,7 +393,6 @@ const ModuloMapa = (function() {
         }
       }
     } catch (e) {
-      // Fallback
     }
   }
 
@@ -474,7 +423,6 @@ const ModuloMapa = (function() {
     getMap: () => mapInstance
   };
 })();
-
 
 if (typeof window !== "undefined") {
   window.ModuloMapa = ModuloMapa;

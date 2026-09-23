@@ -1,11 +1,3 @@
-/* ==========================================================================
-   SISTEMA DE DISEÑO - NUDO DE ORO
-   Inspirado en la identidad de marca de nudos-de-oro.vercel.app
-   Tipografía: Cormorant Garamond & Manrope
-   Paleta: Oro 18k, tonos tierra cálidos, marfil y carbón refinado
-   Iconografía: Lucide Icons / SVG puro (Sin emojis)
-   ========================================================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root,
@@ -92,7 +84,6 @@ body {
   transition: background-color var(--transition), color var(--transition);
 }
 
-/* Encabezado Principal */
 .site-header {
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
@@ -172,7 +163,6 @@ body {
   height: 14px;
 }
 
-/* Botón Toggle de Tema */
 .theme-toggle-btn {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
@@ -193,7 +183,6 @@ body {
   transform: scale(1.05);
 }
 
-/* Layout Principal: Sidebar Izquierdo + Mapa Derecho */
 .main-layout {
   display: grid;
   grid-template-columns: 460px 1fr;
@@ -211,7 +200,6 @@ body {
   }
 }
 
-/* Panel Lateral */
 .sidebar-panel {
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
@@ -231,7 +219,6 @@ body {
   border-radius: 4px;
 }
 
-/* Tarjetas */
 .panel-card {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
@@ -266,12 +253,10 @@ body {
   color: var(--color-primary);
 }
 
-/* Formularios */
 .form-group {
   margin-bottom: 0.9rem;
 }
 
-/* Selector de Ciudad (Pills Grid) */
 .city-selector-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -384,7 +369,6 @@ body {
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
-/* Selector de Estrategias GoF */
 .strategy-cards {
   display: flex;
   flex-direction: column;
@@ -468,7 +452,6 @@ body {
   border-radius: var(--radius-full);
 }
 
-/* Botones con estilo Nudo de Oro */
 .btn-group-actions {
   display: flex;
   flex-direction: column;
@@ -573,7 +556,6 @@ body {
   white-space: nowrap;
 }
 
-/* Banner Flotante de Modo Comparativo en Mapa */
 .map-comparison-banner {
   position: absolute;
   top: 1.2rem;
@@ -686,7 +668,6 @@ body {
   height: 14px;
 }
 
-/* Grid de Métricas */
 .results-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -742,7 +723,6 @@ body {
   margin-top: 0.2rem;
 }
 
-/* Itinerario de Pasos */
 .route-path-container {
   margin-top: 0.8rem;
   padding-top: 0.8rem;
@@ -804,7 +784,6 @@ body {
   font-weight: 600;
 }
 
-/* Tabla Comparativa */
 .comparison-container {
   background: var(--color-surface);
   border: 1px dashed var(--color-primary);
@@ -851,7 +830,6 @@ body {
   font-weight: 600;
 }
 
-/* Contenedor del Mapa */
 .map-viewport {
   position: relative;
   width: 100%;
@@ -865,7 +843,6 @@ body {
   z-index: 1;
 }
 
-/* Leyenda del Mapa */
 .map-legend {
   position: absolute;
   bottom: 24px;
@@ -904,7 +881,6 @@ body {
 .line-fast { background: var(--route-fast); }
 .line-network { background: var(--color-text-faint); opacity: 0.6; }
 
-/* Marcadores Personalizados Leaflet (100% SVG, Sin Emojis) */
 .custom-leaflet-marker-wrapper {
   background: transparent;
   border: none;
@@ -955,7 +931,6 @@ body {
   border-color: #bfdbfe;
 }
 
-/* Tooltip Minimalista No Invasivo */
 .mini-tooltip-nodo {
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
@@ -973,7 +948,6 @@ body {
   border-top-color: var(--color-surface) !important;
 }
 
-/* Mini Popup Discreto (Solo si el usuario hace clic) */
 .custom-popup-compact-wrapper .leaflet-popup-content-wrapper {
   background: var(--color-surface);
   color: var(--color-text);
@@ -1011,9 +985,6 @@ body {
   line-height: 1.25;
 }
 
-/* ==========================================================================
-   MODAL CORPORATIVO NUDO DE ORO (Reemplazo estético de alertas nativas)
-   ========================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1137,7 +1108,6 @@ body {
   width: 100%;
 }
 
-/* Modal Amplio de Informe Técnico de Ruta */
 .modal-container-large {
   max-width: 720px;
   max-height: 90vh;
@@ -1250,9 +1220,6 @@ body {
   font-weight: 600;
 }
 
-/* ==============================================================================
-   ESTILOS PARA EL MODAL DE COMPARATIVA REAL DE ESTRATEGIAS GoF
-   ============================================================================== */
 .comparativa-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1457,7 +1424,3 @@ body {
   color: var(--color-text);
   margin: 0;
 }
-
-
-
-
