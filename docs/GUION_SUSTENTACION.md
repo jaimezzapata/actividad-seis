@@ -13,9 +13,9 @@
 "Un cordial saludo al docente y a los compañeros. Mi nombre es Jaime Zapata Valencia y en esta oportunidad tengo el gusto de realizar la sustentación del proyecto final de la Unidad 3: *Estrategias de Navegación en la Arquitectura de Software*.
 
 Esta actividad fue desarrollada de manera colaborativa e integral por tres personas:
-- Mi persona, **Jaime Zapata Valencia**
-- Mi compañero, **Rafael David Ramírez Saavedra**
-- Mi compañera, **Angela Yurany Rosero**
+- Integrante 1, **Rafael David Ramírez Saavedra**
+- Integrante 2, **Angela Yurany Rosero**
+- Integrante 3, **Jaime Alberto Zapata Valencia**
 
 Como equipo, todos participamos activamente en cada una de las fases del proyecto: desde el análisis arquitectónico y diseño de diagramas UML, hasta la codificación del grafo vial, la implementación del algoritmo Dijkstra, la interfaz gráfica con Leaflet y la elaboración de pruebas unitarias.
 
