@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nudo de Oro | Módulo de Logística y Optimización de Rutas</title>
+  
+  <!-- SEO & Metadatos -->
+  <meta name="description" content="Módulo de Navegación y Recorrido Óptimo con Patrón Strategy (GoF), Dijkstra, Leaflet.js y OpenStreetMap para Joyería Nudo de Oro.">
+
+  <!-- Fuentes Oficiales de Nudo de Oro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet.js CSS (100% Gratuito y Libre) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin="" />
+
+  <!-- Lucide Icons (Librería de Iconografía Moderna y Minimalista - Sin Emojis) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Estilos del Sistema de Diseño Nudo de Oro -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Encabezado Oficial -->
+  <header class="site-header">
+    <div class="navbar">
+      <a href="#" class="brand-link" aria-label="Nudo de Oro">
+        <!-- Logo Oficial de Nudo de Oro -->
+        <svg class="brand-logo-svg" viewBox="0 0 64 64" fill="none" aria-label="Logo Nudo de Oro" role="img">
+          <circle cx="32" cy="32" r="24" stroke="currentColor" stroke-width="1.8" opacity="0.35"/>
+          <path d="M18 35.5C24 22.5 40 22.5 46 35.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="24" cy="31" r="3.3" fill="currentColor" opacity="0.92"/>
+          <circle cx="32" cy="28" r="4.1" fill="currentColor"/>
+          <circle cx="40" cy="31" r="3.3" fill="currentColor" opacity="0.92"/>
+        </svg>
+        <div class="brand-info">
+          <span>Joyería artesanal · Logística</span>
+          <strong>Nudo de Oro</strong>
+        </div>
+      </a>
+
+      <div class="header-right">
+        <span class="section-kicker">
+          <i data-lucide="cpu"></i>
+          Patrón Strategy (GoF)
+        </span>
+        <span class="section-kicker" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+          <i data-lucide="map-pin"></i>
+          Leaflet + OSM
+        </span>
+        <!-- Botón de Alternancia de Tema (Luz / Oscuridad) -->
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Cambiar tema" title="Alternar entre modo claro y oscuro">
+          <i data-lucide="moon" id="theme-icon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Layout Principal: Panel Lateral + Mapa -->
+  <main class="main-layout">
+    
+    <!-- PANEL LATERAL DE CONTROL -->
+    <aside class="sidebar-panel">
+
+      <!-- Tarjeta 1: Parámetros del Despacho -->
+      <section class="panel-card">
+        <h2 class="card-title">
+          <i data-lucide="sliders"></i>
+          Parámetros del Despacho
+        </h2>
+
+        <!-- Selector de Ciudad Operativa (Bogotá, Medellín, Bucaramanga) -->
+        <div class="form-group">
+          <label class="form-label">
+            Ciudad de Operación
+            <span class="tag-desc">Red Logística Nacional</span>
+          </label>
+          <div class="city-selector-grid" id="city-selector-container">
+            <button type="button" class="btn-city-pill active" data-city-id="BOGOTA">
+              <i data-lucide="map"></i>
+              <span>Bogotá D.C.</span>
+            </button>
+            <button type="button" class="btn-city-pill" data-city-id="MEDELLIN">
+              <i data-lucide="map"></i>
+              <span>Medellín</span>
+            </button>
+            <button type="button" class="btn-city-pill" data-city-id="BUCARAMANGA">
+              <i data-lucide="map"></i>
+              <span>Bucaramanga</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selector de Origen -->
+        <div class="form-group">
+          <label class="form-label" for="select-origen">
+            Punto de Origen
+            <span class="tag-desc">Sede de salida</span>
+          </label>
+          <select id="select-origen" class="custom-select">
+            <!-- Nodos inyectados dinámicamente -->
+          </select>
+        </div>
+
+        <!-- Botón de Invertir Sentido -->
+        <div class="swap-locations-wrapper">
+          <button id="btn-invertir" type="button" class="btn-swap" title="Invertir punto de origen y destino">
+            <i data-lucide="arrow-up-down"></i>
+            <span>Invertir origen y destino</span>
+          </button>
+        </div>
+
+        <!-- Selector de Destino -->
+        <div class="form-group">
+          <label class="form-label" for="select-destino">
+            Punto de Destino
+            <span class="tag-desc">Entrega o recolección</span>
+          </label>
+          <select id="select-destino" class="custom-select">
+            <!-- Nodos inyectados dinámicamente -->
+          </select>
+        </div>
+
+        <!-- Selector de Estrategia de Navegación (Patrón GoF) -->
+        <div class="form-group">
+          <label class="form-label">
+            Estrategia de Navegación
+            <span class="tag-desc">Inyección en Tiempo de Ejecución</span>
+          </label>
+          
+          <div class="strategy-cards">
+            <!-- Estrategia A: Ruta Más Corta -->
+            <label class="strategy-option">
+              <input type="radio" name="estrategia" value="distancia" id="strat-corta" checked>
+              <div class="strategy-card-inner">
+                <div class="strategy-icon-box">
+                  <i data-lucide="milestone"></i>
+                </div>
+                <div class="strategy-details">
+                  <h4>Ruta Más Corta</h4>
+                  <p>Minimiza la distancia física acumulada en kilómetros.</p>
+                  <span class="strategy-metric-tag">Prioridad: Menor Distancia (km)</span>
+                </div>
+              </div>
+            </label>
+
+            <!-- Estrategia B: Ruta Más Rápida -->
+            <label class="strategy-option">
+              <input type="radio" name="estrategia" value="tiempo" id="strat-rapida">
+              <div class="strategy-card-inner">
+                <div class="strategy-icon-box">
+                  <i data-lucide="clock"></i>
+                </div>
+                <div class="strategy-details">
+                  <h4>Ruta Más Rápida</h4>
+                  <p>Minimiza el tiempo en minutos considerando tráfico y semaforización.</p>
+                  <span class="strategy-metric-tag">Prioridad: Menor Tiempo (min)</span>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="btn-group-actions">
+          <button id="btn-calcular" class="btn btn-primary" type="button">
+            <i data-lucide="navigation"></i>
+            <span>Calcular Ruta Óptima</span>
+          </button>
+          <button id="btn-comparar" class="btn btn-compare" type="button">
+            <div class="btn-compare-left">
+              <i data-lucide="scale"></i>
+              <span>Comparar Ambas Estrategias</span>
+            </div>
+            <span class="badge-compare-pill">Corta vs Rápida</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Tarjeta 2: Itinerario de Despacho y Puntos de Control -->
+      <section class="panel-card" id="card-resultados">
+        <h2 class="card-title">
+          <i data-lucide="navigation"></i>
+          Itinerario del Despacho
+        </h2>
+
+        <!-- Botón para Abrir Informe Técnico y Justificación -->
+        <button id="btn-abrir-informe" class="btn btn-secondary" type="button" style="width: 100%; margin-bottom: 0.8rem;">
+          <i data-lucide="file-text"></i>
+          <span>Informe Técnico y Justificación</span>
+        </button>
+
+        <!-- Lista Detallada de Nodos Recorridos -->
+        <div class="route-path-container" style="margin-top: 0; padding-top: 0; border-top: none;">
+          <h3 class="form-label">
+            Puntos de Control del Recorrido
+            <span class="tag-desc">Haz clic para enfocar en mapa</span>
+          </h3>
+          <ul class="route-steps-list" id="route-steps-list">
+            <li class="route-step-item" style="color: var(--color-text-muted); border: none; justify-content: center;">
+              Seleccione origen y destino para calcular la ruta.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Tarjeta 3: Sustentación del Patrón Strategy (GoF) -->
+      <section class="panel-card" style="border-style: dashed;">
+        <h2 class="card-title" style="margin-bottom: 0.5rem; font-size: 1.1rem;">
+          <i data-lucide="book-open"></i>
+          Arquitectura de Software
+        </h2>
+        <p style="font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.5;">
+          <b>Patrón Strategy (GoF):</b> Desacopla las variantes del algoritmo de ruta (<code style="color: var(--color-primary);">EstrategiaRutaMasCorta</code> y <code style="color: #2563eb;">EstrategiaRutaMasRapida</code>) bajo la abstracción común <code style="color: var(--color-text);">EstrategiaNavegacion</code>. La clase <code style="color: var(--color-text);">CalculadorRutas</code> actúa como <b>Contexto</b> ejecutando el cálculo de forma polimórfica sin acoplar la interfaz gráfica.
+        </p>
+      </section>
+
+    </aside>
+
+    <!-- ÁREA DEL MAPA INTERACTIVO -->
+    <div class="map-viewport">
+      <div id="map"></div>
+
+      <!-- Banner Flotante de Modo Comparativo en Mapa -->
+      <div id="map-comparison-banner" class="map-comparison-banner" style="display: none;">
+        <div class="map-comparison-info">
+          <div class="map-comparison-icon">
+            <i data-lucide="scale"></i>
+          </div>
+          <div class="map-comparison-text">
+            <span class="comparison-kicker">Modo Comparativo Activo &bull; Patrón Strategy</span>
+            <strong id="map-comparison-resumen">Ruta Más Corta vs Ruta Más Rápida</strong>
+          </div>
+        </div>
+        <div class="map-comparison-actions">
+          <button id="btn-reabrir-comparativa" class="btn btn-sm btn-primary" type="button">
+            <i data-lucide="file-text"></i>
+            <span>Ver Comparativa Detallada</span>
+          </button>
+          <button id="btn-cerrar-banner-comparativa" class="btn-icon-banner" type="button" aria-label="Volver a ruta individual">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Leyenda Flotante -->
+      <div class="map-legend">
+
+        <h5>Leyenda Cartográfica</h5>
+        <div class="legend-item">
+          <span class="legend-color-line line-short"></span>
+          <span>Ruta Más Corta (Distancia Física)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-line line-fast"></span>
+          <span>Ruta Más Rápida (Tráfico Vehicular)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-line line-network"></span>
+          <span>Red Logística Joyería Nudo de Oro</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Corporativo Nudo de Oro (Cero alertas nativas) -->
+  <div id="modal-notificacion" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="modal-titulo">
+    <div class="modal-container">
+      <button id="modal-btn-cerrar-x" class="modal-close-icon" aria-label="Cerrar modal">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="modal-icon-badge" id="modal-icon-badge">
+        <i data-lucide="alert-circle" id="modal-lucide-icon"></i>
+      </div>
+      <div class="modal-body-content">
+        <span class="section-kicker" id="modal-kicker">Atención Logística</span>
+        <h3 id="modal-titulo" class="modal-title">Aviso de Operación</h3>
+        <p id="modal-mensaje" class="modal-message">Descripción del mensaje.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="modal-btn-aceptar" class="btn btn-primary" type="button">
+          <span>Aceptar y Continuar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detallado de Informe Técnico y Justificación de Ruta -->
+  <div id="modal-informe-ruta" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="informe-titulo">
+    <div class="modal-container modal-container-large">
+      <button id="informe-btn-cerrar-x" class="modal-close-icon" aria-label="Cerrar informe">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="informe-header">
+        <span class="section-kicker">
+          <i data-lucide="shield-check"></i>
+          Auditoría de Navegación &bull; Patrón Strategy
+        </span>
+        <h3 id="informe-titulo" class="modal-title" style="margin-top: 0.4rem;">
+          Informe Técnico de Ruta y Despacho Blindado
+        </h3>
+        <p class="informe-subtitle" id="informe-trayecto-sub">
+          Taller Central &rarr; Cliente Usaquén
+        </p>
+      </div>
+
+      <div class="informe-scroll-body">
+        
+        <!-- Bloque 1: Justificación Algorítmica y Operativa -->
+        <div class="informe-section">
+          <h4 class="informe-section-title">
+            <i data-lucide="compass"></i>
+            Justificación de la Ruta Seleccionada (¿Por qué esta ruta y no otra?)
+          </h4>
+          <div class="informe-card-highlight" id="informe-justificacion-texto">
+            <!-- Texto dinámico generado por la estrategia GoF -->
+          </div>
+        </div>
+
+        <!-- Bloque 2: Corredores Viales, Calles, Cruces y Elementos Urbanos -->
+        <div class="informe-section">
+          <h4 class="informe-section-title">
+            <i data-lucide="map-pin"></i>
+            Vías Arterias, Cruces y Elementos Urbanos Recorridos
+          </h4>
+          <div class="informe-vias-list" id="informe-vias-container">
+            <!-- Tramos dinámicos con calles, cruces y puntos clave -->
+          </div>
+        </div>
+
+        <!-- Bloque 3: Métricas de Desempeño y Cómputo -->
+        <div class="informe-section">
+          <h4 class="informe-section-title">
+            <i data-lucide="activity"></i>
+            Métricas de Rendimiento y Complejidad Asintótica
+          </h4>
+          <div class="results-grid" style="margin-bottom: 0;">
+            <div class="metric-box">
+              <span class="metric-label">Distancia Total</span>
+              <span class="metric-value highlight-gold" id="informe-metric-distancia">0.0 km</span>
+              <span class="metric-sub">Kilometraje de recorrido</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Tiempo Estimado</span>
+              <span class="metric-value" id="informe-metric-tiempo">0.0 min</span>
+              <span class="metric-sub">Con tráfico vehicular</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Latencia Dijkstra</span>
+              <span class="metric-value highlight-gold" id="informe-metric-latencia">0.00 ms</span>
+              <span class="metric-sub">performance.now()</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Complejidad Teórica</span>
+              <span class="metric-value" style="font-size: 1.1rem; padding-top: 0.3rem;">O(E + V log V)</span>
+              <span class="metric-sub">Optimización Min-Heap</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 4: Itinerario de Puntos de Control -->
+        <div class="informe-section">
+          <h4 class="informe-section-title">
+            <i data-lucide="list-ordered"></i>
+            Secuencia Ordenada de Sedes y Puntos de Control
+          </h4>
+          <ul class="route-steps-list" id="informe-itinerario-list" style="max-height: none;">
+            <!-- Sedes inyectadas dinámicamente -->
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="display: flex; gap: 0.8rem;">
+        <button id="informe-btn-cerrar" class="btn btn-primary" type="button" style="flex: 1;">
+          <span>Cerrar Informe</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de Comparativa Real de Estrategias GoF -->
+  <div id="modal-comparativa-estrategias" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="comparativa-titulo">
+    <div class="modal-container modal-container-large">
+      <button id="comparativa-btn-cerrar-x" class="modal-close-icon" aria-label="Cerrar comparativa">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="informe-header">
+        <span class="section-kicker">
+          <i data-lucide="scale"></i>
+          Evaluación Algorítmica &bull; Patrón Strategy (GoF)
+        </span>
+        <h3 id="comparativa-titulo" class="modal-title" style="margin-top: 0.4rem;">
+          Comparativa Real: Ruta Más Corta vs Ruta Más Rápida
+        </h3>
+        <p class="informe-subtitle" id="comparativa-trayecto-sub">
+          Trayecto evaluado
+        </p>
+      </div>
+
+      <div class="informe-scroll-body" id="comparativa-body-content">
+        <!-- Inyectado dinámicamente según si son la misma ruta o rutas diferentes -->
+      </div>
+
+      <div class="modal-footer" style="display: flex; gap: 0.8rem;">
+        <button id="comparativa-btn-cerrar" class="btn btn-primary" type="button" style="flex: 1;">
+          <span>Entendido</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Leaflet.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+          crossorigin=""></script>
+
+  <!-- Scripts del Proyecto -->
+  <script src="js/grafo.js"></script>
+  <script src="js/estrategias.js"></script>
+  <script src="js/mapa.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
